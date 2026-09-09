@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Prototypes</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #0f1115;
+    color: #e8e8ec;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 16px;
+  }
+  h1 { font-size: 1.5rem; margin-bottom: 24px; }
+  ul { list-style: none; padding: 0; margin: 0; width: 100%; max-width: 480px; }
+  li + li { margin-top: 12px; }
+  a.card {
+    display: block;
+    padding: 16px 20px;
+    border-radius: 10px;
+    background: #1b1e26;
+    border: 1px solid #2a2e3a;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  a.card:hover { border-color: #4a90d9; background: #21252f; }
+  a.card .name { font-weight: 600; }
+  a.card .desc { font-size: 0.85rem; color: #9aa0ac; margin-top: 4px; }
+</style>
+</head>
+<body>
+  <h1>Game Prototypes</h1>
+  <ul>
+    <li>
+      <a class="card" href="mathtraining/">
+        <div class="name">MathTraining</div>
+        <div class="desc">Cascading ways slot prototype — Unity WebGL build</div>
+      </a>
+    </li>
+  </ul>
+</body>
+</html>
