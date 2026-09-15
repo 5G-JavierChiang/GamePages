@@ -42,7 +42,9 @@
   a.card:hover { border-color: #4a90d9; background: #21252f; }
   a.card .name { font-weight: 600; }
   a.card .desc { font-size: 0.85rem; color: #9aa0ac; margin-top: 4px; }
-  a.card .changes { list-style: disc; margin: 6px 0 0; padding-left: 18px; }
+  a.card hr.divider { border: none; border-top: 1px solid #2a2e3a; margin: 10px 0; }
+  a.card .changes-title { font-size: 0.85rem; color: #9aa0ac; line-height: 1.5; }
+  a.card .changes { list-style: disc; margin: 0; padding-left: 18px; }
   a.card .changes li { font-size: 0.85rem; color: #9aa0ac; margin-top: 0; line-height: 1.5; }
   a.card.latest { border-color: #d9a94a; }
   a.card.latest .name::after {
@@ -69,6 +71,7 @@
     <li>
       <a class="card" href="2026-09-10/">
         <div class="name">2026-09-10</div>
+        <hr class="divider">
         <ul class="changes">
           <li>初版原型</li>
         </ul>
@@ -77,6 +80,8 @@
     <li>
       <a class="card" href="2026-09-14/">
         <div class="name">2026-09-14</div>
+        <hr class="divider">
+        <div class="changes-title">調整內容:</div>
         <ul class="changes">
           <li>提高 BaseGame 平均連爆次數：1.31 → 1.54</li>
           <li>降低 BaseGame 中獎率：25.85% → 22.05%</li>
@@ -87,8 +92,9 @@
     <li>
       <a class="card" href="2026-09-15/">
         <div class="name">2026-09-15</div>
+        <hr class="divider">
+        <div class="changes-title">調整內容:</div>
         <ul class="changes">
-		  <div>調整內容:</div>
           <li>提高 BaseGame 中獎率：22.05% → 28.75%</li>
           <li>提高 BaseGame 平均連爆次數：1.54 → 1.63</li>
           <li>提高 FreeGame 中獎率：28.98% → 35.45%</li>
