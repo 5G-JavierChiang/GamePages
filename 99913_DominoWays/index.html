@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MathTraining - Versions</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #0f1115;
+    color: #e8e8ec;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 16px;
+  }
+  a.back {
+    align-self: flex-start;
+    margin: 0 auto 20px;
+    width: 100%;
+    max-width: 480px;
+    color: #9aa0ac;
+    text-decoration: none;
+    font-size: 0.85rem;
+  }
+  a.back:hover { color: #e8e8ec; }
+  h1 { font-size: 1.5rem; margin-bottom: 24px; }
+  ul { list-style: none; padding: 0; margin: 0; width: 100%; max-width: 480px; }
+  li + li { margin-top: 12px; }
+  a.card {
+    display: block;
+    padding: 16px 20px;
+    border-radius: 10px;
+    background: #1b1e26;
+    border: 1px solid #2a2e3a;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  a.card:hover { border-color: #4a90d9; background: #21252f; }
+  a.card .name { font-weight: 600; }
+  a.card .desc { font-size: 0.85rem; color: #9aa0ac; margin-top: 4px; }
+  a.card hr.divider { border: none; border-top: 1px solid #2a2e3a; margin: 10px 0; }
+  a.card .changes-title { font-size: 0.85rem; color: #9aa0ac; line-height: 1.5; }
+  a.card .changes { list-style: disc; margin: 0; padding-left: 18px; }
+  a.card .changes li { font-size: 0.85rem; color: #9aa0ac; margin-top: 0; line-height: 1.5; }
+  a.card.latest { border-color: #d9a94a; }
+  a.card.latest .name::after {
+    content: "LATEST";
+    margin-left: 8px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #0f1115;
+    background: #d9a94a;
+    padding: 2px 6px;
+    border-radius: 4px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+  <a class="back" href="../">&larr; Game Prototypes</a>
+  <h1>99913_DominoWays</h1>
+  <!--
+    Add a new version: copy a <li> block below, point href at the new dated build folder,
+    write what changed in .desc, and move the "latest" class (+ its LATEST badge) onto it.
+  -->
+  <ul>
+    <li>
+      <a class="card" href="2026-10-05/">
+        <div class="name">2026-10-05</div>
+        <hr class="divider">
+        <div class="changes-title">主要調整內容:</div>
+        <ul class="changes">
+          <li>NormalBet新增ABC版本</li>
+          <li>A HitRate: 31.19%</li>
+          <li>B HitRate: 25.43%</li>
+          <li>C HitRate: 35.67%</li>
+        </ul>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="2026-09-30/">
+        <div class="name">2026-09-30</div>
+        <hr class="divider">
+        <div class="changes-title">主要調整內容:</div>
+        <ul class="changes">
+          <li>架構整理，數據微調</li>
+          <li>UI新增統計表單</li>
+        </ul>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="2026-09-29/">
+        <div class="name">2026-09-29</div>
+        <hr class="divider">
+        <div class="changes-title">主要調整內容:</div>
+        <ul class="changes">
+          <li>提高BG 20倍以上比率</li>
+        </ul>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="2026-09-23/">
+        <div class="name">2026-09-23</div>
+        <hr class="divider">
+        <div class="changes-title">主要調整內容:</div>
+        <ul class="changes">
+          <li>FG加入保底</li>
+          <li>提高BG高倍比率</li>
+        </ul>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="2026-09-22/">
+        <div class="name">2026-09-22</div>
+        <hr class="divider">
+        <div class="changes-title">主要調整內容:</div>
+        <ul class="changes">
+          <li>圖標改為3大4小</li>
+        </ul>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="2026-09-16/">
+        <div class="name">2026-09-16</div>
+        <hr class="divider">
+        <div class="changes-title">主要調整內容:</div>
+        <ul class="changes">
+          <li>圖標替換測試素材</li>
+        </ul>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="2026-09-15c/">
+        <div class="name">2026-09-15c</div>
+        <hr class="divider">
+        <div class="changes-title">主要調整內容:</div>
+        <ul class="changes">
+          <li>調整 BaseGame 中獎率：30.66%</li>
+          <li>調整 BaseGame 平均連爆次數：1.60</li>
+        </ul>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="2026-09-15b/">
+        <div class="name">2026-09-15b</div>
+        <hr class="divider">
+        <div class="changes-title">主要調整內容:</div>
+        <ul class="changes">
+          <li>提高 BaseGame 中獎率：28.75% → 33.02%</li>
+          <li>降低 BaseGame 平均連爆次數：1.63 → 1.55</li>
+        </ul>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="2026-09-15a/">
+        <div class="name">2026-09-15a</div>
+        <hr class="divider">
+        <div class="changes-title">主要調整內容:</div>
+        <ul class="changes">
+          <li>提高 BaseGame 中獎率：22.05% → 28.75%</li>
+          <li>提高 BaseGame 平均連爆次數：1.54 → 1.63</li>
+          <li>提高 FreeGame 中獎率：28.98% → 35.45%</li>
+          <li>新增H1二連線，並提高五連線配分，降低H1出現率</li>
+          <li>降低 M1~M3、L1~L3 配分</li>
+        </ul>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="2026-09-14/">
+        <div class="name">2026-09-14</div>
+        <hr class="divider">
+        <div class="changes-title">主要調整內容:</div>
+        <ul class="changes">
+          <li>提高 BaseGame 平均連爆次數：1.31 → 1.54</li>
+          <li>降低 BaseGame 中獎率：25.85% → 22.05%</li>
+          <li>降低 M1~M3 五連配分、L1~L3 配分</li>
+        </ul>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="2026-09-10/">
+        <div class="name">2026-09-10</div>
+        <hr class="divider">
+        <ul class="changes">
+          <li>初版原型</li>
+        </ul>
+      </a>
+    </li>
+  </ul>
+</body>
+</html>

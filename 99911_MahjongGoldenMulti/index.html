@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MathTraining - Versions</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #0f1115;
+    color: #e8e8ec;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 16px;
+  }
+  a.back {
+    align-self: flex-start;
+    margin: 0 auto 20px;
+    width: 100%;
+    max-width: 480px;
+    color: #9aa0ac;
+    text-decoration: none;
+    font-size: 0.85rem;
+  }
+  a.back:hover { color: #e8e8ec; }
+  h1 { font-size: 1.5rem; margin-bottom: 24px; }
+  ul { list-style: none; padding: 0; margin: 0; width: 100%; max-width: 480px; }
+  li + li { margin-top: 12px; }
+  a.card {
+    display: block;
+    padding: 16px 20px;
+    border-radius: 10px;
+    background: #1b1e26;
+    border: 1px solid #2a2e3a;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  a.card:hover { border-color: #4a90d9; background: #21252f; }
+  a.card .name { font-weight: 600; }
+  a.card .desc { font-size: 0.85rem; color: #9aa0ac; margin-top: 4px; }
+  a.card hr.divider { border: none; border-top: 1px solid #2a2e3a; margin: 10px 0; }
+  a.card .changes-title { font-size: 0.85rem; color: #9aa0ac; line-height: 1.5; }
+  a.card .changes { list-style: disc; margin: 0; padding-left: 18px; }
+  a.card .changes li { font-size: 0.85rem; color: #9aa0ac; margin-top: 0; line-height: 1.5; }
+  a.card.latest { border-color: #d9a94a; }
+  a.card.latest .name::after {
+    content: "LATEST";
+    margin-left: 8px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #0f1115;
+    background: #d9a94a;
+    padding: 2px 6px;
+    border-radius: 4px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+  <a class="back" href="../">&larr; Game Prototypes</a>
+  <h1>99911_MahjongGoldenMulti</h1>
+  <!--
+    Add a new version: copy a <li> block below, point href at the new dated build folder,
+    write what changed in .desc, and move the "latest" class (+ its LATEST badge) onto it.
+  -->
+  <ul>
+    <li>
+      <a class="card" href="20261007/">
+        <div class="name">20261007</div>
+        <hr class="divider">
+        <div class="changes-title">主要調整內容:</div>
+        <ul class="changes">
+          <li>初版</li>
+          <li>只有NormalBet, RTP=97%</li>
+          <li>BuyFeature可試玩一般免費遊戲</li>
+        </ul>
+      </a>
+    </li>
+  </ul>
+</body>
+</html>
