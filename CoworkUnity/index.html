@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>和 AI 協作做 Unity 原型試玩 / Prototyping Unity Games with AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --navy:#14213D; --paper:#F7F5EF; --card:#FFFDF8; --line:#E1DDD0;
+  --blue:#2F5D9E; --orange:#C04A12; --sand:#F4A261;
+  --body:#3D4657; --mute:#6B7385; --onnavy:#C9D3E6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#0b1122;overflow:hidden;font-family:'Noto Sans TC','Microsoft JhengHei',Arial,sans-serif}
+body[data-lang="zh"] .en{display:none}
+body[data-lang="en"] .zh{display:none}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center center}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;padding:128px 128px 160px;display:none;flex-direction:column;gap:40px;background:var(--paper);color:var(--navy)}
+.slide.on{display:flex}
+.slide.dark{background:var(--navy);color:var(--paper)}
+h1{font-size:104px;font-weight:700;line-height:1.15}
+h2{font-size:64px;font-weight:700;line-height:1.15}
+h3{font-size:36px;font-weight:700;line-height:1.25}
+p,li{font-size:32px;line-height:1.5}
+ul{padding-left:1.1em}
+li{margin-bottom:6px;font-size:34px}
+.eyebrow{font-size:28px;font-weight:700;color:var(--orange);letter-spacing:2px}
+.dark .eyebrow{color:var(--sand)}
+.lead{font-size:36px;color:var(--body);line-height:1.5}
+.dark .lead{color:var(--onnavy)}
+.foot{position:absolute;left:128px;bottom:64px;font-size:24px;color:var(--mute)}
+.dark .foot{color:#9FB0CC}
+.row{display:flex;gap:32px}
+.col{display:flex;flex-direction:column;gap:20px}
+.f1{flex:1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:40px}
+.card.navy{background:var(--navy);color:var(--paper);border:none}
+.dark .card.navy{background:#22335A}
+.num{font-size:56px;font-weight:700;color:var(--orange);line-height:1}
+.card.navy .num{color:var(--sand)}
+.small{font-size:28px;color:var(--body);line-height:1.5}
+.dark .small,.card.navy .small{color:var(--onnavy)}
+.tag{font-size:28px;font-weight:700;color:var(--blue)}
+.navy .tag{color:var(--sand)}
+.quote{font-size:32px;line-height:1.6;font-weight:500}
+.err{background:#0f1830;color:#E8EEFF;border-radius:12px;padding:22px 28px;font-family:'JetBrains Mono',Consolas,monospace;font-size:26px;line-height:1.5}
+.err b{color:var(--sand)}
+.step{display:flex;flex-direction:column;gap:12px;flex:1;padding:36px 28px}
+table{border-collapse:collapse;width:100%}
+th{font-size:28px;text-align:left;background:var(--navy);color:var(--paper);padding:18px 24px;font-weight:700}
+td{font-size:30px;padding:18px 24px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.45;background:var(--card)}
+td.k{font-weight:700}
+.bad{color:var(--mute)}
+.good{font-weight:500}
+.arrow{font-size:44px;color:var(--orange);align-self:center;font-weight:700}
+.shotbox{width:270px;height:470px;overflow:hidden;border-radius:12px;border:1px solid var(--line);position:relative;background:#111;flex:none}
+.shotbox img{position:absolute;width:644px;left:-190px;top:-42px}
+.shotbox.sm{width:210px;height:365px}
+.shotbox.sm img{width:500px;left:-148px;top:-33px}
+.shotbox.ex{width:244px;height:420px}
+.shotbox.ex img{width:576px;left:-170px;top:-37px}
+.shotbox.ex2{width:222px;height:380px}
+.shotbox.ex2 img{width:521px;left:-154px;top:-34px}
+.shotbox.ex3{width:200px;height:340px}
+.shotbox.ex3 img{width:467px;left:-138px;top:-30px}
+.shotwrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.shotwrap p{font-size:28px;line-height:1.4}
+/* nav */
+#bar{position:fixed;left:0;bottom:0;height:6px;background:var(--orange);transition:width .2s;z-index:5}
+#hint{position:fixed;right:16px;bottom:12px;font-size:14px;color:#8da0c4;z-index:5;font-family:Arial,sans-serif}
+#lang{position:fixed;right:16px;top:12px;z-index:6;font:600 14px Arial,sans-serif;background:#22335A;color:#F7F5EF;border:1px solid #4a5f8f;border-radius:20px;padding:6px 14px;cursor:pointer}
+@media print{
+  html,body{overflow:visible;background:#fff;height:auto}
+  #stage{position:static;transform:none!important;width:1920px;height:auto}
+  .slide{display:flex!important;position:relative;page-break-after:always;break-after:page}
+  #bar,#hint,#lang{display:none}
+  @page{size:1920px 1080px;margin:0}
+}
+</style>
+</head>
+<body data-lang="zh">
+<div id="stage">
+
+<!-- 1 cover -->
+<section class="slide on" style="justify-content:center">
+  <p class="eyebrow" style="font-size:32px;letter-spacing:4px"><span class="zh">AI × UNITY 原型教學</span><span class="en">AI × UNITY PROTOTYPING GUIDE</span></p>
+  <h1><span class="zh">和 AI 協作<br>做出 Unity 原型試玩</span><span class="en">Build a Playable Unity<br>Prototype with AI</span></h1>
+  <p class="lead" style="font-size:40px"><span class="zh">給會用 Unity、會設計遊戲邏輯，<br>但還沒用過 AI 的你</span><span class="en">For people who know Unity and game logic,<br>but have never worked with AI</span></p>
+  <p class="foot"><span class="zh">示範素材：真實的 Unity 協作對話</span><span class="en">Examples taken from a real Unity collaboration session</span></p>
+</section>
+
+<!-- 2 why -->
+<section class="slide">
+  <h2><span class="zh">你不需要會 AI，只需要會說清楚</span><span class="en">You don't need to know AI. You need to be clear.</span></h2>
+  <div class="row" style="margin-top:8px">
+    <div class="card f1 col" style="padding:48px">
+      <p class="tag" style="font-size:32px"><span class="zh">你已經擅長的事</span><span class="en">What you're already good at</span></p>
+      <ul style="line-height:1.7"><li style="font-size:36px"><span class="zh">決定遊戲要怎麼玩</span><span class="en">Deciding how the game plays</span></li><li style="font-size:36px"><span class="zh">設計遊戲邏輯與數值</span><span class="en">Designing game logic and numbers</span></li><li style="font-size:36px"><span class="zh">操作 Unity、判斷畫面對不對</span><span class="en">Using Unity and judging the screen</span></li><li style="font-size:36px"><span class="zh">知道「哪裡不順」</span><span class="en">Knowing what feels wrong</span></li></ul>
+    </div>
+    <div class="card navy f1 col" style="padding:48px">
+      <p class="tag" style="font-size:32px"><span class="zh">AI 幫你補上的事</span><span class="en">What AI covers for you</span></p>
+      <ul style="line-height:1.7"><li style="font-size:36px"><span class="zh">把描述寫成可執行的程式碼</span><span class="en">Turning descriptions into working code</span></li><li style="font-size:36px"><span class="zh">調整專案結構與檔案</span><span class="en">Adjusting project structure and files</span></li><li style="font-size:36px"><span class="zh">讀懂錯誤訊息並修正</span><span class="en">Reading and fixing error messages</span></li><li style="font-size:36px"><span class="zh">反覆微調到你滿意</span><span class="en">Tweaking until you're happy</span></li></ul>
+    </div>
+  </div>
+  <p style="font-size:40px;font-weight:700"><span class="zh">你負責「決定」，AI 負責「寫出來」。</span><span class="en">You decide. AI writes it.</span></p>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 02</p>
+</section>
+
+<!-- 3 case -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">示範案例</span><span class="en">CASE STUDY</span></p>
+  <h2><span class="zh">把遊戲邏輯接進 Unity</span><span class="en">Bringing Game Logic into Unity</span></h2>
+  <p class="lead"><span class="zh">目標：寫好的遊戲邏輯，不改動就能在 Unity 裡跑起來，再調整畫面表現。</span><span class="en">Goal: run existing game logic in Unity without rewriting it, then tune the visuals.</span></p>
+  <div class="row">
+    <div class="card f1 col" style="gap:16px"><p class="num">1</p><h3><span class="zh">邏輯直接給 Unity 用</span><span class="en">Logic works in Unity as is</span></h3><p class="small"><span class="zh">程式碼相容 Unity，不需改動就能執行</span><span class="en">Code stays Unity-compatible and runs without changes</span></p></div>
+    <div class="card f1 col" style="gap:16px"><p class="num">2</p><h3><span class="zh">放進現有 Unity 框架</span><span class="en">Fit into the existing project</span></h3><p class="small"><span class="zh">把 GameLogic、MathModel 放進既有專案，排除編譯錯誤</span><span class="en">Drop GameLogic and MathModel into the project and clear compile errors</span></p></div>
+    <div class="card f1 col" style="gap:16px"><p class="num">3</p><h3><span class="zh">在 Unity 裡調表現</span><span class="en">Tune the look in Unity</span></h3><p class="small"><span class="zh">動畫節奏、倍數顯示、押注數值逐項調整</span><span class="en">Animation timing, multiplier display and bet values, one by one</span></p></div>
+  </div>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 03</p>
+</section>
+
+<!-- 4 flow -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">協作流程</span><span class="en">THE WORKFLOW</span></p>
+  <h2><span class="zh">五步循環：說、問、拆、貼、調</span><span class="en">Five steps: Say, Ask, Split, Paste, Tune</span></h2>
+  <div class="row" style="margin-top:16px;gap:20px">
+    <div class="card navy step"><p class="num">1</p><h3><span class="zh">說目標</span><span class="en">State the goal</span></h3><p class="small"><span class="zh">用白話講目的與限制</span><span class="en">Plain words: purpose and limits</span></p></div>
+    <div class="card navy step"><p class="num">2</p><h3><span class="zh">問可行</span><span class="en">Check feasibility</span></h3><p class="small"><span class="zh">動手前先確認架構與改動範圍</span><span class="en">Confirm design and scope before coding</span></p></div>
+    <div class="card navy step"><p class="num">3</p><h3><span class="zh">拆步驟</span><span class="en">Split the work</span></h3><p class="small"><span class="zh">一次只做一兩件事</span><span class="en">One or two things at a time</span></p></div>
+    <div class="card navy step"><p class="num">4</p><h3><span class="zh">貼錯誤</span><span class="en">Paste errors</span></h3><p class="small"><span class="zh">Unity 報錯就整段貼回</span><span class="en">Paste Unity errors back in full</span></p></div>
+    <div class="card navy step"><p class="num">5</p><h3><span class="zh">調表現</span><span class="en">Tune the visuals</span></h3><p class="small"><span class="zh">用畫面語言描述節奏</span><span class="en">Describe timing in visual terms</span></p></div>
+  </div>
+  <p class="lead" style="margin-top:16px"><span class="zh">第 3 到 5 步會反覆進行，直到原型符合你的想像。</span><span class="en">Steps 3 to 5 repeat until the prototype matches your vision.</span></p>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 04</p>
+</section>
+
+<!-- 5 s1 -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">步驟 1 · 說目標</span><span class="en">STEP 1 · STATE THE GOAL</span></p>
+  <h2><span class="zh">先講目的，再用編號列出限制</span><span class="en">Purpose first, then a numbered list</span></h2>
+  <div class="row" style="gap:40px;align-items:flex-start">
+    <div class="col f1" style="gap:22px">
+      <ul>
+        <li><b><span class="zh">要做什麼</span><span class="en">What</span></b><span class="zh">：一句話交代目前狀態與目標</span><span class="en">: one sentence on where things stand and the goal</span></li>
+        <li><b><span class="zh">限制條件</span><span class="en">Constraints</span></b><span class="zh">：每項一個編號，一行講完</span><span class="en">: one number per item, one line each</span></li>
+        <li><b><span class="zh">成功標準</span><span class="en">Done means</span></b><span class="zh">：什麼狀態算完成</span><span class="en">: what counts as finished</span></li>
+      </ul>
+      <div class="card" style="padding:22px 28px;border-left:8px solid var(--orange)"><p class="small" style="font-size:26px"><span class="zh">編號的好處：AI 會照編號逐項回覆，你也能直接指定「先做第 1 點和第 2 點」。</span><span class="en">Numbers help: AI answers item by item, and you can say "do points 1 and 2 first."</span></p></div>
+      <p class="small"><span class="zh">不用寫規格書，也不用懂技術名詞，用你平常跟同事講需求的方式即可。</span><span class="en">No spec document or jargon needed. Talk the way you would to a teammate.</span></p>
+    </div>
+    <div class="card navy" style="flex:1.35;padding:32px 36px">
+      <p class="tag"><span class="zh">真實範例：一句話 ＋ 三個編號</span><span class="en">A real example: one sentence plus three numbers</span></p>
+      <p class="quote" style="font-size:28px;margin-top:12px"><span class="zh">「可以執行了，可以調整表現面了」</span><span class="en">"It runs now. We can tune the visuals."</span></p>
+      <div class="col" style="gap:14px;margin-top:18px"><div class="row" style="gap:16px;align-items:flex-start"><p class="num" style="font-size:36px;color:var(--sand);width:40px">1</p><p class="quote" style="font-size:28px;margin-top:-2px"><span class="zh">SPIN 不要一直旋轉，有點擊時才轉一圈</span><span class="en">The SPIN icon shouldn't spin forever. Rotate once per click.</span></p></div><div class="row" style="gap:16px;align-items:flex-start"><p class="num" style="font-size:36px;color:var(--sand);width:40px">2</p><p class="quote" style="font-size:28px;margin-top:-2px"><span class="zh">沒看到金框跟攜帶的倍數</span><span class="en">I don't see the gold frame or the carried multiplier.</span></p></div><div class="row" style="gap:16px;align-items:flex-start"><p class="num" style="font-size:36px;color:var(--sand);width:40px">3</p><p class="quote" style="font-size:28px;margin-top:-2px"><span class="zh">連消倍數要顯示在畫面上，先確認是否有內建架構可以使用</span><span class="en">Show the cascade multiplier on screen. First check whether the project already has a way to do it.</span></p></div></div>
+    </div>
+  </div>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 00</p>
+</section>
+
+<!-- 6 s2 -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">步驟 2 · 問可行</span><span class="en">STEP 2 · CHECK FEASIBILITY</span></p>
+  <h2><span class="zh">動手前先問：行得通嗎？改動大嗎？</span><span class="en">Ask first: will it work, and how big is the change?</span></h2>
+  <table>
+    <tr><th style="width:56%"><span class="zh">實際問過的問題</span><span class="en">Real questions asked</span></th><th><span class="zh">目的</span><span class="en">Purpose</span></th></tr>
+    <tr><td><span class="zh">C# 9 框架可以直接符合 Unity 需求嗎</span><span class="en">Is C# 9 compatible with Unity as is?</span></td><td><span class="zh">確認技術相容，再決定寫法</span><span class="en">Confirm compatibility before choosing an approach</span></td></tr>
+    <tr><td><span class="zh">放進現有 Unity 框架，改動範圍會很大嗎</span><span class="en">If I put it into our Unity framework, will the change be large?</span></td><td><span class="zh">先評估風險，再決定要不要做</span><span class="en">Assess risk before deciding to proceed</span></td></tr>
+    <tr><td><span class="zh">攜帶 CREDIT 要在哪邊修改</span><span class="en">Where do I change the starting CREDIT?</span></td><td><span class="zh">找到設定位置，之後自己也能調</span><span class="en">Find the setting so you can adjust it yourself later</span></td></tr>
+  </table>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 06</p>
+</section>
+
+<!-- 7 s3 -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">步驟 3 · 拆步驟</span><span class="en">STEP 3 · SPLIT THE WORK</span></p>
+  <h2><span class="zh">一次一件事，順序由你決定</span><span class="en">One thing at a time, in your order</span></h2>
+  <div class="row" style="gap:40px">
+    <div class="card navy f1 col" style="gap:28px">
+      <p class="tag"><span class="zh">實際下過的指令</span><span class="en">Real instructions given</span></p>
+      <p class="quote"><span class="zh">「先做第 1 點和第 2 點」</span><span class="en">"Do points 1 and 2 first."</span></p>
+      <p class="quote"><span class="zh">「先改 SpinController 的問題」</span><span class="en">"Fix the SpinController issue first."</span></p>
+      <p class="quote"><span class="zh">「新增 CHEAT_MODE，然後 GameLogic 改 public」</span><span class="en">"Add CHEAT_MODE, and make GameLogic public."</span></p>
+    </div>
+    <div class="col f1" style="gap:24px;justify-content:center">
+      <ul>
+        <li><span class="zh">AI 提出多個修改點時，你挑先做哪些</span><span class="en">When AI lists several changes, you choose what goes first</span></li>
+        <li><span class="zh">每做完一步，回 Unity 確認再往下</span><span class="en">After each step, check in Unity before moving on</span></li>
+        <li><span class="zh">出問題時，範圍小才找得到原因</span><span class="en">A small change makes the cause easy to find</span></li>
+      </ul>
+    </div>
+  </div>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 07</p>
+</section>
+
+<!-- 8 s4 merged -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">步驟 4 · 貼錯誤</span><span class="en">STEP 4 · PASTE ERRORS</span></p>
+  <h2><span class="zh">貼上錯誤，但不必全盤接受 AI 的修改</span><span class="en">Paste the error, but don't accept every AI change</span></h2>
+  <div class="row" style="gap:32px;align-items:stretch">
+    <div class="card" style="flex:1.25;padding:24px 28px;display:flex;flex-direction:column;gap:14px">
+      <p class="tag"><span class="zh">① 錯誤訊息整行貼給 AI</span><span class="en">① Paste the whole error line to AI</span></p>
+      <div class="err" style="font-size:24px;padding:10px 18px"><b>CS0246</b> HistoryController.cs(7,7): 'Newtonsoft' could not be found</div>
+      <div class="err" style="font-size:24px;padding:10px 18px"><b>CS1061</b> SpinController.cs(195,81): 'GameLogic' does not contain a definition for 'animations'</div>
+      <div class="err" style="font-size:24px;padding:10px 18px"><b>CS0246</b> GlobalEvent.cs(63,48): 'GameAnimationData' could not be found</div>
+      <p style="font-size:26px;font-weight:700;margin-top:4px"><span class="zh">貼上錯誤 → AI 修改 → Unity 重編譯 → 再貼新錯誤</span><span class="en">Paste error → AI fixes → Unity recompiles → paste next</span></p>
+    </div>
+    <div class="col" style="flex:1;gap:16px">
+      <p class="tag" style="color:var(--orange)"><span class="zh">② AI 的方案不合意，就換方向</span><span class="en">② If the plan feels wrong, change direction</span></p>
+      <div class="card navy" style="padding:20px 26px"><p class="tag"><span class="zh">改動越來越多時</span><span class="en">When changes keep growing</span></p><p class="quote" style="font-size:26px;margin-top:8px"><span class="zh">「好像問題變多了。我想要另外找地方加入動畫順序，這樣就不用讓 GameLogic 因為 Unity 改動太多」</span><span class="en">"More problems now. I'd rather put the animation order elsewhere, so GameLogic isn't changed so much for Unity."</span></p></div>
+      <div class="card navy" style="padding:20px 26px"><p class="tag"><span class="zh">有現成替代時</span><span class="en">When a simpler option exists</span></p><p class="quote" style="font-size:26px;margin-top:8px"><span class="zh">「如果是專案內的檔案取代 Unity 版本就可以解決的，讓他直接參照」</span><span class="en">"If a project file can replace the Unity version, just reference it directly."</span></p></div>
+    </div>
+  </div>
+  <div class="card" style="border-left:8px solid var(--orange);padding:18px 32px"><p style="font-size:28px;line-height:1.45"><b><span class="zh">AI 的修改是提案，不是定案。</span><span class="en">AI's changes are proposals, not final answers. </span></b><span class="zh">你最懂自己的架構：覺得改動太大、問題越改越多，就說出你的方向，它會照著調整。</span><span class="en">You know your architecture best. If changes balloon, state your direction.</span></p></div>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 00</p>
+</section>
+
+<!-- 10 s6 -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">步驟 5 · 調表現</span><span class="en">STEP 5 · TUNE THE VISUALS</span></p>
+  <h2><span class="zh">用「畫面語言」描述節奏</span><span class="en">Describe timing in visual language</span></h2>
+  <div class="col" style="gap:14px">
+    <div class="card" style="padding:22px 36px"><p class="tag"><span class="zh">講順序與停頓</span><span class="en">Order and pauses</span></p><p class="quote" style="font-size:27px"><span class="zh">「節奏是圖標爆破消除 → 剩餘圖標掉落 → 掉落同時遞補新的圖標，每個階段要讓玩家有時間看」</span><span class="en">"The rhythm is: symbols burst and clear, remaining symbols fall, new symbols fill in as they fall. Give the player time to see each stage."</span></p></div>
+    <div class="card" style="padding:22px 36px"><p class="tag"><span class="zh">講位置與規則</span><span class="en">Position and rules</span></p><p class="quote" style="font-size:27px"><span class="zh">「連消倍數全列在上面，標示當前倍數；連消時標示位置向右一格」</span><span class="en">"List every cascade multiplier along the top and mark the current one. On each cascade, move the marker one slot to the right."</span></p></div>
+    <div class="card" style="padding:22px 36px"><p class="tag"><span class="zh">講數字</span><span class="en">Numbers</span></p><p class="quote" style="font-size:27px"><span class="zh">「圖標亮的時候就同時滾分，0.6 秒內要滾完，接著爆破」</span><span class="en">"Count up the score while the symbols glow. Finish within 0.6 seconds, then burst."</span></p></div>
+  </div>
+  <p class="lead" style="font-size:30px"><span class="zh">接下來 4 個實際範例，每頁一個：你說的、AI 做的、畫面結果。</span><span class="en">Next: four real examples, one per slide. What you said, what AI did, and the result.</span></p>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 00</p>
+</section>
+
+<!-- example 1 -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">範例 1 · 讀懂執行錯誤</span><span class="en">EXAMPLE 1 · READING A RUNTIME ERROR</span></p>
+  <h2><span class="zh">一啟動就出現例外：直接貼上就好</span><span class="en">Exception on startup: just paste it</span></h2>
+  <div class="row" style="gap:28px;align-items:stretch">
+    <div class="card navy" style="width:480px;flex:none;padding:28px 32px"><p class="tag"><span class="zh">你說的</span><span class="en">What you said</span></p><p class="quote" style="font-size:26px;margin-top:12px"><span class="zh">「一起動會顯示<br>IndexOutOfRangeException: Index was outside the bounds of the array.<br>GameAnimation.Start () (at Assets/Scripts/GameAnimation.cs:142)」</span><span class="en">"On startup it shows<br>IndexOutOfRangeException: Index was outside the bounds of the array.<br>GameAnimation.Start () (at Assets/Scripts/GameAnimation.cs:142)"</span></p></div>
+    <div class="card" style="flex:1;padding:28px 32px"><p class="tag"><span class="zh">AI 做了什麼</span><span class="en">What AI did</span></p><ul style="margin-top:12px"><li style="font-size:26px;margin-bottom:10px"><span class="zh">原因：第 142 行讀 REELS_MAIN，但新 MathModel 裡它是空陣列</span><span class="en">Cause: line 142 reads REELS_MAIN, which is an empty array in the new MathModel</span></li><li style="font-size:26px;margin-bottom:10px"><span class="zh">範本寫死「有頂部橫軸」，這款遊戲沒有</span><span class="en">The template hard-codes a top horizontal reel; this game has none</span></li><li style="font-size:26px;margin-bottom:10px"><span class="zh">修改：REELS_MAIN 改用基礎遊戲卷軸；沒有頂部橫軸就略過那段</span><span class="en">Fix: REELS_MAIN now uses the base-game reels; the top-reel code is skipped when absent</span></li></ul></div>
+    <div class="card" style="width:420px;flex:none;padding:24px 28px;display:flex;flex-direction:column;gap:12px;background:#EFEBDD"><p class="tag"><span class="zh">Console 的錯誤</span><span class="en">Console error</span></p><div class="err" style="font-size:22px;padding:16px 18px">IndexOutOfRangeException<br>GameAnimation.Start()<br>GameAnimation.cs:142</div><p class="small" style="font-size:24px"><span class="zh">檔名加行號，就是 AI 定位的線索</span><span class="en">File name plus line number is the clue AI uses</span></p></div>
+  </div>
+  <div class="card" style="border-left:8px solid var(--orange);padding:0 32px;margin-top:auto;flex:none;height:100px;display:flex;align-items:center"><p style="font-size:26px;line-height:1.45"><b><span class="zh">你要確認：</span><span class="en">Your check: </span></b><span class="zh">場景裡 ReelsBuilder 的 hasTopHorizontalReel 勾選項也要取消，並重新 Rebuild，否則可能出現下一個越界錯誤。</span><span class="en">Also untick hasTopHorizontalReel on ReelsBuilder in the scene and Rebuild, or the next out-of-range error may appear.</span></p></div>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 00</p>
+</section>
+
+<!-- example 2 -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">範例 2 · 比對前後畫面</span><span class="en">EXAMPLE 2 · COMPARING BEFORE AND AFTER</span></p>
+  <h2 style="white-space:nowrap"><span class="zh">兩次簡短對話，畫面出現兩個差異</span><span class="en">Two short exchanges, two visible differences</span></h2>
+  <div class="row" style="gap:28px;align-items:flex-start">
+    <div class="row" style="gap:16px;flex:none;width:436px"><div class="shotwrap" style="flex:none;width:210px"><div class="shotbox ex3" style="width:210px;height:340px"><img src="img/before.png" alt="Before: placeholder SCATTER symbols, no multiplier" style="width:468px;left:-138px;top:-31px"></div><p style="font-size:24px"><b><span class="zh">① 之前</span><span class="en">① Before</span></b><br><span class="zh">全是佔位圖標，沒有倍數</span><span class="en">No multiplier shown</span></p></div><div class="shotwrap" style="flex:none;width:210px"><div class="shotbox ex3" style="width:210px;height:340px;border:3px solid var(--orange)"><img src="img/bet.png" alt="After: reel symbols and a 1x multiplier frame" style="width:468px;left:-138px;top:-31px"></div><p style="font-size:24px"><b><span class="zh">② 之後</span><span class="en">② After</span></b><br><span class="zh">滾輪符號，左上角有 1x</span><span class="en">Reel symbols, 1x shown</span></p></div></div>
+    <div class="col" style="flex:1;gap:16px">
+      <div class="card" style="padding:20px 28px">
+        <p class="tag" style="color:var(--orange)"><span class="zh">差異 1　盤面圖標：佔位圖 → 滾輪符號</span><span class="en">Difference 1: symbols, placeholder to reel symbols</span></p>
+        <p style="font-size:24px;line-height:1.5;margin-top:8px"><b><span class="zh">你說：</span><span class="en">You: </span></b><span class="zh">「Rebuild 就自動會換成滾輪圖標了，這樣不需要多一個按鈕吧」</span><span class="en">"Rebuild already swaps in the reel symbols, so we don't need an extra button, right?"</span></p>
+        <p style="font-size:24px;line-height:1.5;margin-top:6px"><b><span class="zh">AI：</span><span class="en">AI: </span></b><span class="zh">同意多一個按鈕沒必要並移除；只保留 Rebuild，建完轉軸自動把每格換成主遊戲滾輪位置 0 的符號。</span><span class="en">agreed and removed the button; Rebuild now sets each cell to the main-reel symbol.</span></p>
+      </div>
+      <div class="card" style="padding:20px 28px">
+        <p class="tag" style="color:var(--orange)"><span class="zh">差異 2　倍數顯示：看不到 → 左上角 1x</span><span class="en">Difference 2: multiplier, none to a 1x frame</span></p>
+        <p style="font-size:24px;line-height:1.5;margin-top:8px"><b><span class="zh">你說：</span><span class="en">You: </span></b><span class="zh">「連消倍數要顯示在畫面上，先確認是否有內建架構可以使用」</span><span class="en">"Show the cascade multiplier on screen. First check whether the project already has a way to do it."</span></p>
+        <p style="font-size:24px;line-height:1.5;margin-top:6px"><b><span class="zh">AI：</span><span class="en">AI: </span></b><span class="zh">查到場景已有 Multiplier 物件，原本只在免費遊戲開關；改成遊戲啟動就常駐顯示，預設 X1。</span><span class="en">found an existing Multiplier object (free games only) and made it always visible at X1.</span></p>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="border-left:8px solid var(--orange);padding:0 32px;margin-top:auto;flex:none;height:100px;display:flex;align-items:center"><p style="font-size:26px;line-height:1.45"><b><span class="zh">你要確認：</span><span class="en">Your check: </span></b><span class="zh">用前後畫面逐項比對，並留意 Rebuild 會清掉並重建整組轉軸，手動調整過的內容先留意。</span><span class="en">Compare the two screens item by item. Rebuild clears and rebuilds all reels, so watch out for hand edits.</span></p></div>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 00</p>
+</section>
+
+<!-- example 3 -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">範例 3 · 描述畫面行為</span><span class="en">EXAMPLE 3 · DESCRIBING ON-SCREEN BEHAVIOR</span></p>
+  <h2 style="white-space:nowrap"><span class="zh">連消倍數：全列在上面，並標示目前層級</span><span class="en">Cascade multipliers: all shown, current marked</span></h2>
+  <div class="row" style="gap:28px;align-items:flex-start">
+    <div class="row" style="gap:16px;flex:none;width:436px"><div class="shotwrap" style="flex:none;width:210px"><div class="shotbox ex3" style="width:210px;height:340px"><img src="img/bet.png" alt="At first: one 1x multiplier frame at the top left" style="width:468px;left:-138px;top:-31px"></div><p style="font-size:24px"><b><span class="zh">① 一開始</span><span class="en">① At first</span></b><br><span class="zh">左上角只有 1x 框</span><span class="en">Only a 1x frame</span></p></div><div class="shotwrap" style="flex:none;width:210px"><div class="shotbox ex3" style="width:210px;height:340px;border:3px solid var(--orange)"><img src="img/multiplier.png" alt="After: multiplier row X1 X2 X3 X5" style="width:468px;left:-138px;top:-31px"></div><p style="font-size:24px"><b><span class="zh">② 調整後</span><span class="en">② After</span></b><br><span class="zh">X1 X2 X3 X5 全列</span><span class="en">X1 X2 X3 X5 listed</span></p></div></div>
+    <div class="card navy" style="width:400px;flex:none;padding:24px 28px;align-self:flex-start"><p class="tag"><span class="zh">你說的</span><span class="en">What you said</span></p><p class="quote" style="font-size:26px;margin-top:10px"><span class="zh">「連消倍數 1235 要全列在上面，然後要標示當前倍數。連消時，標示位置向右一格」</span><span class="en">"Show cascade multipliers 1, 2, 3, 5 along the top and mark the current one. On each cascade, move the marker one slot right."</span></p></div>
+    <div class="card" style="flex:1;padding:24px 28px;align-self:flex-start"><p class="tag"><span class="zh">AI 做了什麼</span><span class="en">What AI did</span></p><ul style="margin-top:10px"><li style="font-size:24px;margin-bottom:10px;line-height:1.45"><span class="zh">先查現有架構：有 Multiplier 物件，但沒有一排倍數</span><span class="en">Checked first: a Multiplier object exists, but no row</span></li><li style="font-size:24px;margin-bottom:10px;line-height:1.45"><span class="zh">複製成一排：基礎遊戲 X1 X2 X3 X5、免費遊戲 X2 X4 X6 X10，讀自 MathModel</span><span class="en">Cloned it into a row: base X1 X2 X3 X5, free game X2 X4 X6 X10, read from MathModel</span></li><li style="font-size:24px;margin-bottom:10px;line-height:1.45"><span class="zh">目前層級金色放大 1.25 倍，連消一次右移一格</span><span class="en">Current slot gold and 1.25× larger; each cascade moves it one slot right</span></li></ul></div>
+  </div>
+  <div class="card" style="border-left:8px solid var(--orange);padding:0 32px;margin-top:auto;flex:none;height:100px;display:flex;align-items:center"><p style="font-size:26px;line-height:1.45"><b><span class="zh">你要確認：</span><span class="en">Your check: </span></b><span class="zh">看到畫面和想像不同，直接說出差異。框加寬後是否擋到其他 UI，每格寬度可用 LADDER_CELL_WIDTH 調整。</span><span class="en">If the screen differs from your idea, name the gap. Check the wider frame covers no other UI (slot width: LADDER_CELL_WIDTH).</span></p></div>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 00</p>
+</section>
+
+<!-- example 4 -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">範例 4 · 表現面的連續調整</span><span class="en">EXAMPLE 4 · VISUAL TUNING</span></p>
+  <h2><span class="zh">四段表現面對話：你描述畫面，AI 改數字與規則</span><span class="en">Four visual tweaks, one slide</span></h2>
+  <table>
+    <tr><th style="width:15%"><span class="zh">主題</span><span class="en">Topic</span></th><th style="width:43%"><span class="zh">你說</span><span class="en">You said</span></th><th><span class="zh">AI 做了什麼</span><span class="en">What AI did</span></th></tr>
+    <tr><td class="k" style="font-size:26px;padding:10px 18px"><span class="zh">掉落節奏</span><span class="en">Fall rhythm</span></td><td style="font-size:24px;padding:10px 18px;line-height:1.4"><span class="zh">「節奏是圖標爆破消除 → 剩餘圖標掉落 → 掉落同時遞補新的圖標，每個階段要讓玩家有時間看」</span><span class="en">"Symbols burst, the rest fall, new ones fill in while falling. Give the player time to see each stage."</span></td><td style="font-size:24px;padding:10px 18px;line-height:1.4"><span class="zh">落下改成固定時間 0.4 秒，階段之間加停頓（爆破 0.35 秒、停 0.25 秒、停 0.5 秒）</span><span class="en">Fixed 0.4 s fall; pauses between stages (burst 0.35 s, waits 0.25 s, 0.5 s)</span></td></tr><tr><td class="k" style="font-size:26px;padding:10px 18px"><span class="zh">爆破與滾分</span><span class="en">Burst and count-up</span></td><td style="font-size:24px;padding:10px 18px;line-height:1.4"><span class="zh">「圖標亮的時候就同時滾分，0.6 秒內要滾完，接著爆破」「爆破只在本身圖標範圍」</span><span class="en">"Count up while symbols glow, finish within 0.6 s, then burst." "Burst only inside its own cell."</span></td><td style="font-size:24px;padding:10px 18px;line-height:1.4"><span class="zh">亮 0.6 秒內同步滾分，滾完立刻爆破；爆破用和格子同大的遮罩，超出就裁掉</span><span class="en">Count-up during the 0.6 s glow, then burst; a cell-sized mask clips fragments</span></td></tr><tr><td class="k" style="font-size:26px;padding:10px 18px"><span class="zh">倍數與圖標分開</span><span class="en">Multiplier drifting</span></td><td style="font-size:24px;padding:10px 18px;line-height:1.4"><span class="zh">「圖標跟倍數可以一起掉落嗎？目前掉落有點分開」</span><span class="en">"Can the symbols and multipliers fall together? They look separate now."</span></td><td style="font-size:24px;padding:10px 18px;line-height:1.4"><span class="zh">原因是它上次加的「底板 ×1.3」被掉落的複製品再乘一次（×1.69）；改成固定比例 0.52</span><span class="en">Cause: its "plate ×1.3" was re-applied to falling clones (×1.69). Now fixed at 0.52</span></td></tr><tr><td class="k" style="font-size:26px;padding:10px 18px"><span class="zh">倍數列重置</span><span class="en">Multiplier reset</span></td><td style="font-size:24px;padding:10px 18px;line-height:1.4"><span class="zh">「如果沒中獎，倍數就不用往右更新。每局開始先重置倍數，再進行旋轉」</span><span class="en">"No win, no move right. At the start of each round, reset the multiplier, then spin."</span></td><td style="font-size:24px;padding:10px 18px;line-height:1.4"><span class="zh">先重置再旋轉；只有這一盤有中獎才右移，最後一盤沒中獎就停住</span><span class="en">Reset, then spin; marker moves only after a winning board</span></td></tr>
+  </table>
+  <div class="card" style="border-left:8px solid var(--orange);padding:0 32px;margin-top:auto;flex:none;height:100px;display:flex;align-items:center"><p style="font-size:26px;line-height:1.45"><b><span class="zh">你要確認：</span><span class="en">Your check: </span></b><span class="zh">AI 每次都說沒在 Unity 播放過，每項都要親自看；不對時，說清楚是哪個時間點（例如掉到一半分開，或落地才跳）。</span><span class="en">AI said it never played the result in Unity, so watch each item yourself. If wrong, name the moment (e.g. mid-fall or on landing).</span></p></div>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 00</p>
+</section>
+
+<!-- 12 timeline -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">整體回顧</span><span class="en">RECAP</span></p>
+  <h2><span class="zh">從需求到可玩的四個階段</span><span class="en">Four stages from idea to playable</span></h2>
+  <table>
+    <tr><th style="width:18%"><span class="zh">階段</span><span class="en">Stage</span></th><th style="width:44%"><span class="zh">你做的事</span><span class="en">What you did</span></th><th><span class="zh">結果</span><span class="en">Result</span></th></tr>
+    <tr><td class="k"><span class="zh">邏輯準備</span><span class="en">Prepare logic</span></td><td><span class="zh">確認邏輯程式碼相容 Unity（C# 9）</span><span class="en">Confirm the logic code is Unity-compatible (C# 9)</span></td><td><span class="zh">可直接給 Unity 用的程式碼</span><span class="en">Code Unity can use directly</span></td></tr>
+    <tr><td class="k"><span class="zh">整合 Unity</span><span class="en">Integrate</span></td><td><span class="zh">放進現有框架，貼回編譯錯誤</span><span class="en">Place it in the framework, paste back compile errors</span></td><td><span class="zh">錯誤逐一排除</span><span class="en">Errors cleared one by one</span></td></tr>
+    <tr><td class="k"><span class="zh">修正執行</span><span class="en">Fix runtime</span></td><td><span class="zh">回報啟動例外、SPIN 按鈕一直旋轉</span><span class="en">Report startup exception and the endlessly spinning SPIN button</span></td><td><span class="zh">可以執行，能調整表現</span><span class="en">Runs, ready for visual tuning</span></td></tr>
+    <tr><td class="k"><span class="zh">調整表現</span><span class="en">Tune visuals</span></td><td><span class="zh">倍數列、爆破節奏、滾分、押注顯示逐項描述</span><span class="en">Describe multiplier row, burst timing, score count-up, bet display</span></td><td><span class="zh">逐項優化到滿意</span><span class="en">Refined item by item</span></td></tr>
+  </table>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 12</p>
+</section>
+
+<!-- 13 prompts -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">提問技巧</span><span class="en">PROMPTING TIPS</span></p>
+  <h2><span class="zh">讓 AI 一次聽懂的說法</span><span class="en">Say it so AI gets it the first time</span></h2>
+  <table>
+    <tr><th style="width:20%"><span class="zh">情境</span><span class="en">Situation</span></th><th style="width:30%"><span class="zh">較弱的說法</span><span class="en">Weaker</span></th><th><span class="zh">較好的說法</span><span class="en">Better</span></th></tr>
+    <tr><td class="k"><span class="zh">回報問題</span><span class="en">Report a bug</span></td><td class="bad"><span class="zh">「好像壞了」</span><span class="en">"It seems broken."</span></td><td class="good"><span class="zh">貼完整錯誤並說明何時發生（「點 SPIN 之後按鈕一直旋轉，其他畫面都沒動」）</span><span class="en">Paste the full error and say when it happens ("After clicking SPIN the button keeps spinning and nothing else moves")</span></td></tr>
+    <tr><td class="k"><span class="zh">指定範圍</span><span class="en">Set scope</span></td><td class="bad"><span class="zh">「全部幫我改好」</span><span class="en">"Fix everything."</span></td><td class="good"><span class="zh">「先做第 1 點和第 2 點」</span><span class="en">"Do points 1 and 2 first."</span></td></tr>
+    <tr><td class="k"><span class="zh">說明限制</span><span class="en">State limits</span></td><td class="bad"><span class="zh">「幫我整合進去」</span><span class="en">"Integrate it."</span></td><td class="good"><span class="zh">「GameLogic 不要因為 Unity 改太多」</span><span class="en">"Don't change GameLogic too much for Unity."</span></td></tr>
+    <tr><td class="k"><span class="zh">表現需求</span><span class="en">Visual request</span></td><td class="bad"><span class="zh">「做漂亮一點」</span><span class="en">"Make it look nicer."</span></td><td class="good"><span class="zh">「0.6 秒內滾完分，接著爆破」</span><span class="en">"Finish the count-up in 0.6 s, then burst."</span></td></tr>
+  </table>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 13</p>
+</section>
+
+<!-- guard -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">你要把關</span><span class="en">YOUR JOB</span></p>
+  <h2><span class="zh">AI 寫的東西，要你親自驗收</span><span class="en">You verify what AI writes</span></h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+    <div class="card"><h3><span class="zh">親自跑一遍</span><span class="en">Run it yourself</span></h3><p class="small" style="margin-top:12px"><span class="zh">AI 常會說明它沒有在 Unity 裡跑過。畫面對不對，只有你看得出來。</span><span class="en">AI often says it did not run the result in Unity. Only you can tell if it looks right.</span></p></div>
+    <div class="card"><h3><span class="zh">數值自己核對</span><span class="en">Check the numbers</span></h3><p class="small" style="margin-top:12px"><span class="zh">例如押注放大 100 倍後，押 20 要帶 2000，要確認畫面上真的如此。</span><span class="en">E.g. after scaling bets by 100, a bet of 20 should carry 2000. Confirm the screen shows it.</span></p></div>
+    <div class="card"><h3><span class="zh">小心檔案衝突</span><span class="en">Beware file conflicts</span></h3><p class="small" style="margin-top:12px"><span class="zh">專案開著時 AI 改檔，曾出現「開起來沒東西」。改檔前先關閉專案，或改完重新載入。</span><span class="en">When AI edits files while the project is open, it once opened empty. Close the project first, or reload afterwards.</span></p></div>
+    <div class="card"><h3><span class="zh">大改前先存檔</span><span class="en">Save before big changes</span></h3><p class="small" style="margin-top:12px"><span class="zh">用 Git 提交一次，出問題能退回。</span><span class="en">Commit to Git so you can roll back.</span></p></div>
+  </div>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 00</p>
+</section>
+
+<!-- 15 start -->
+<section class="slide">
+  <p class="eyebrow"><span class="zh">開始練習</span><span class="en">GET STARTED</span></p>
+  <h2><span class="zh">第一次上手的四件事</span><span class="en">Your first four moves</span></h2>
+  <div class="col" style="gap:20px">
+    <div class="card row" style="align-items:center;gap:32px;padding:30px 40px"><p class="num">1</p><p style="font-size:34px"><span class="zh">選一個小玩法，例如一個簡單的關卡或小遊戲</span><span class="en">Pick a small mechanic, like one simple level or mini game</span></p></div>
+    <div class="card row" style="align-items:center;gap:32px;padding:30px 40px"><p class="num">2</p><p style="font-size:34px"><span class="zh">寫三句話：目標、限制、完成的樣子</span><span class="en">Write three sentences: goal, constraints, what done looks like</span></p></div>
+    <div class="card row" style="align-items:center;gap:32px;padding:30px 40px"><p class="num">3</p><p style="font-size:34px"><span class="zh">先問可行性與改動範圍，再請 AI 動手</span><span class="en">Ask about feasibility and scope before asking AI to build</span></p></div>
+    <div class="card row" style="align-items:center;gap:32px;padding:30px 40px"><p class="num">4</p><p style="font-size:34px"><span class="zh">一次一個修改，錯誤貼回，表現用畫面語言調整</span><span class="en">One change at a time, paste errors back, tune visuals in plain visual terms</span></p></div>
+  </div>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 15</p>
+</section>
+
+<!-- 16 end -->
+<section class="slide" style="justify-content:center">
+  <p class="eyebrow"><span class="zh">重點回顧</span><span class="en">TAKEAWAY</span></p>
+  <h1 style="font-size:84px"><span class="zh">你決定做什麼、好不好玩，<br>AI 負責把它寫出來</span><span class="en">You decide what to build and<br>whether it's fun. AI writes it.</span></h1>
+  <p class="lead" style="font-size:36px"><span class="zh">說清楚 · 問可行 · 拆步驟 · 貼錯誤 · 調表現</span><span class="en">State · Check · Split · Paste · Tune</span></p>
+  <p class="foot"><span class="zh">AI 協作 Unity 原型教學</span><span class="en">AI × Unity Prototyping Guide</span> · 16</p>
+</section>
+
+</div>
+<div id="bar"></div>
+<button id="lang" type="button">中文 / English</button>
+<div id="hint">← → · F · L 中/EN · Ctrl+P PDF</div>
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide')),
+      stage=document.getElementById('stage'),bar=document.getElementById('bar'),
+      btn=document.getElementById('lang'),i=0;
+  try{var h=parseInt(location.hash.slice(1),10);if(h>=1&&h<=slides.length)i=h-1;}catch(e){}
+  function setLang(l){document.body.setAttribute('data-lang',l);try{localStorage.setItem('lang',l);}catch(e){}}
+  var q=(location.search.match(/lang=(zh|en)/)||[])[1],saved=null;
+  try{saved=localStorage.getItem('lang');}catch(e){}
+  setLang(q||saved||'zh');
+  function toggle(){setLang(document.body.getAttribute('data-lang')==='zh'?'en':'zh');}
+  function fit(){var s=Math.min(innerWidth/1920,innerHeight/1080);
+    stage.style.transform='translate(-50%,-50%) scale('+s+')';}
+  function show(n){i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(s,k){s.classList.toggle('on',k===i)});
+    bar.style.width=((i+1)/slides.length*100)+'%';
+    try{history.replaceState(null,'','#'+(i+1));}catch(e){}}
+  addEventListener('resize',fit);
+  btn.addEventListener('click',function(e){e.stopPropagation();toggle();});
+  addEventListener('keydown',function(e){
+    if(['ArrowRight','ArrowDown','PageDown',' ','Enter'].indexOf(e.key)>-1){e.preventDefault();show(i+1);}
+    else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].indexOf(e.key)>-1){e.preventDefault();show(i-1);}
+    else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+    else if(e.key==='l'||e.key==='L')toggle();
+    else if(e.key==='f'||e.key==='F'){if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen();}
+  });
+  addEventListener('click',function(e){show(e.clientX<innerWidth*0.25?i-1:i+1);});
+  slides.forEach(function(sl,k){var f=sl.querySelector('.foot');if(f&&f.lastChild&&f.lastChild.nodeType===3)f.lastChild.nodeValue=' · '+(k<9?'0':'')+(k+1);});
+  fit();show(i);
+})();
+</script>
+</body>
+</html>
