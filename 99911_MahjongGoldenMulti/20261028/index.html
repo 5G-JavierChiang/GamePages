@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>MasterTemplate</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+  </head>
+  <body>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" width=1280 height=720 tabindex="-1"></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-loading-title">載入中…</div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+        <div id="unity-progress-info">
+          <span id="unity-progress-size"></span>
+          <span id="unity-progress-percent">0%</span>
+        </div>
+      </div>
+      <div id="unity-warning"> </div>
+      <div id="unity-footer">
+        <div id="unity-logo-title-footer"></div>
+        <div id="unity-fullscreen-button"></div>
+        <div id="unity-build-title">MasterTemplate</div>
+      </div>
+    </div>
+    <script>
+      var canvas = document.querySelector("#unity-canvas");
+
+      function unityShowBanner(msg, type) {
+        var warningBanner = document.querySelector("#unity-warning");
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/Build.loader.js";
+      var config = {
+        arguments: [],
+        dataUrl: buildUrl + "/Build.data",
+        frameworkUrl: buildUrl + "/Build.framework.js",
+        codeUrl: buildUrl + "/Build.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "5G-Games",
+        productName: "MasterTemplate",
+        productVersion: "6.0.0",
+        showBanner: unityShowBanner,
+      };
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        document.querySelector("#unity-container").className = "unity-mobile";
+        canvas.className = "unity-mobile";
+      } else {
+        canvas.style.width = "1280px";
+        canvas.style.height = "720px";
+      }
+
+      document.querySelector("#unity-loading-bar").style.display = "block";
+
+      // Total download size in bytes, written into this file by the post-build script
+      // (Assets/Editor/WebGLBuildSizePostprocess.cs). 0 / unreplaced => show percent only.
+      var TOTAL_BYTES = Number("52196002") || 0;
+      // Unity reports ~0..0.9 while downloading, the remainder is engine start-up.
+      var DOWNLOAD_PHASE = 0.9;
+
+      var elBar = document.querySelector("#unity-progress-bar-full");
+      var elTitle = document.querySelector("#unity-loading-title");
+      var elSize = document.querySelector("#unity-progress-size");
+      var elPercent = document.querySelector("#unity-progress-percent");
+      function fmtMB(bytes) { return (bytes / 1048576).toFixed(1); }
+
+      function updateProgress(progress) {
+        var dl = Math.min(progress / DOWNLOAD_PHASE, 1);
+        elBar.style.width = (100 * progress) + "%";
+        elPercent.textContent = Math.floor(100 * progress) + "%";
+        if (TOTAL_BYTES > 0) {
+          elSize.textContent = fmtMB(dl * TOTAL_BYTES) + " / " + fmtMB(TOTAL_BYTES) + " MB";
+        }
+        elTitle.textContent = dl < 1 ? "下載中…" : "初始化中…";
+      }
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, updateProgress).then((unityInstance) => {
+          document.querySelector("#unity-loading-bar").style.display = "none";
+          document.querySelector("#unity-fullscreen-button").onclick = () => {
+            unityInstance.SetFullscreen(1);
+          };
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>
